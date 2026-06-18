@@ -1,0 +1,68 @@
+/* Hero Section */
+.hero-section {
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-section h1 {
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+/* Cards */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Buttons */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn-link:hover {
+  text-decoration: underline !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: auto;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .d-flex.gap-3 {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .d-flex.gap-3 button {
+    width: 100%;
+  }
+}
