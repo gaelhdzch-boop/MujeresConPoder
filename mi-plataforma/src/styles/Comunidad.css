@@ -1,0 +1,136 @@
+.comunidad-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf0f7 100%);
+}
+
+.comunidad-header {
+  max-width: 720px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.comunidad-kicker {
+  display: inline-block;
+  color: #be185d;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.comunidad-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) minmax(0, 260px);
+}
+
+.comunidad-sidebar,
+.comunidad-widget,
+.comunidad-main {
+  display: grid;
+  gap: 20px;
+}
+
+.comunidad-panel {
+  background: #ffffff;
+  border: 1px solid rgba(244, 114, 182, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 22px 48px rgba(190, 24, 93, 0.08);
+  padding: 24px;
+}
+
+.comunidad-panel h3 {
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.comunidad-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.comunidad-link {
+  color: #831843;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.comunidad-link:hover {
+  text-decoration: underline;
+}
+
+.comunidad-post-box textarea {
+  width: 100%;
+  border: 1px solid #f4d8e8;
+  border-radius: 18px;
+  padding: 18px;
+  resize: vertical;
+  font-family: inherit;
+  min-height: 150px;
+}
+
+.comunidad-btn {
+  margin-top: 16px;
+  background-color: #f472b6;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  color: white;
+}
+
+.comunidad-card {
+  background: #ffffff;
+  border: 1px solid rgba(244, 114, 182, 0.18);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 18px 40px rgba(190, 24, 93, 0.07);
+}
+
+.comunidad-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.comunidad-badge {
+  background-color: #fdf2f8;
+  color: #be185d;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.comunidad-meta {
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.comunidad-card h3 {
+  margin-bottom: 12px;
+}
+
+.comunidad-card p {
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.comunidad-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 18px;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 992px) {
+  .comunidad-layout {
+    grid-template-columns: 1fr;
+  }
+}

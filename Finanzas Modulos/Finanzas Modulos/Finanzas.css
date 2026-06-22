@@ -1,0 +1,18 @@
+.finanzas-container { background-color: #fdfbf7; padding: 20px; border-radius: 15px; }
+
+.bg-rosa { 
+    background-color: #d81b60 !important; 
+    color: white !important; 
+}
+.bg-rosa:hover { 
+    background-color: #ad1457 !important; 
+    color: white !important; 
+}
+
+.border-rosa { border: 1px solid #d81b60; border-radius: 8px; overflow: hidden; }
+.btn-activo { background-color: #d81b60 !important; color: white !important; border-radius: 0; }
+.btn-inactivo { background-color: white !important; color: #d81b60 !important; border-radius: 0; }
+.formulario-rosa { background-color: #fce4ec; border: none; border-radius: 10px; }
+.card-balance { background-color: #f8bbd0; color: #880e4f; padding: 30px; border-radius: 15px; margin-bottom: 20px; }
+.tabla-radius { border-radius: 15px; overflow: hidden; }
+.card-recomendacion { background-color: #fff9e6; border: 1px solid #ffe082; border-radius: 15px; }

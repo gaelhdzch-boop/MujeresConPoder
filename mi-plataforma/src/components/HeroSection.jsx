@@ -2,7 +2,7 @@ import { COLORS } from '../constants/colors';
 
 export const HeroSection = ({ onCreateAccountClick }) => {
   return (
-    <section className="hero-section text-center p-5 position-relative" style={{ backgroundColor: COLORS.lightBg }}>
+    <section id="inicio" className="hero-section text-center p-5 position-relative" style={{ backgroundColor: COLORS.lightBg }}>
       <div className="container py-5">
         <h1 className="display-4 fw-bold mb-0">
           <span style={{ color: COLORS.primary }}>Crece a tu propio ritmo</span>

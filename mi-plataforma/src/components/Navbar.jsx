@@ -23,6 +23,7 @@ export const Navbar = ({ onCreateAccountClick, onLoginClick, onLogoClick, onProf
           <ul className="navbar-nav mx-auto">
             <li className="nav-item"><a className="nav-link" href="#cursos">Cursos</a></li>
             <li className="nav-item"><a className="nav-link" href="#marketplace">Marketplace</a></li>
+            <li className="nav-item"><a className="nav-link" href="#comunidad">Comunidad</a></li>
             <li className="nav-item"><a className="nav-link" href="#oportunidades">Oportunidades</a></li>
             <li className="nav-item"><a className="nav-link" href="#finanzas">Finanzas</a></li>
           </ul>

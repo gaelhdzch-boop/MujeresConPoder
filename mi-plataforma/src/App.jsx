@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { FeaturesGrid } from './components/FeaturesGrid';
+import MarketplaceCursos from './components/MarketplaceCursos';
+import Finanzas from './components/Finanzas';
+import Comunidad from './components/Comunidad';
 import { OpportunitiesBanner } from './components/OpportunitiesBanner';
 import { AuthPage } from './components/AuthPage';
 import { Profile } from './components/Profile';
@@ -100,6 +103,9 @@ function App() {
       <main>
         <HeroSection onCreateAccountClick={navigateToSignup} />
         <FeaturesGrid />
+        <MarketplaceCursos />
+        <Finanzas />
+        <Comunidad />
         <OpportunitiesBanner />
       </main>
     </div>

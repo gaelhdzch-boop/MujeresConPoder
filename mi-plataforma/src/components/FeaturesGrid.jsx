@@ -25,7 +25,7 @@ const features = [
 
 export const FeaturesGrid = () => {
   return (
-    <section className="container py-5 text-center">
+    <section id="cursos" className="container py-5 text-center">
       <h2 className="fw-bold mb-4">
         Todo lo que necesitas, <br /> 
         <span style={{ color: COLORS.primary }}>JUNTO</span>

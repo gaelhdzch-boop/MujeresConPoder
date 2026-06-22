@@ -2,7 +2,7 @@ import { COLORS } from '../constants/colors';
 
 export const OpportunitiesBanner = () => {
   return (
-    <section className="container py-5 mb-5">
+    <section id="oportunidades" className="container py-5 mb-5">
       <div 
         className="p-5 rounded-4 text-center shadow-sm"
         style={{ backgroundColor: COLORS.opportunitiesBg }}
