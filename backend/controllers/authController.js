@@ -1,21 +1,22 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import { getUserByEmail, createUser, getUserById, getUserWithPasswordById, updateUserPassword, updateUserProfile, getAllUsers, updateUserRole, createPasswordResetToken, getPasswordResetByToken, markPasswordResetTokenUsed } from '../models/userModel.js';
+import { getUserByEmail, createUser, getUserById, getUserWithPasswordById, updateUserPassword, updateUserProfile, updateUserSecurityQuestion, getAllUsers, updateUserRole, createPasswordResetToken, getPasswordResetByToken, markPasswordResetTokenUsed, getUserCourseProgress, registerUserCourse, updateUserCourseProgress } from '../models/userModel.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-const EMAIL_FROM = process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@plataforma.com';
-const EMAIL_SERVICE = process.env.EMAIL_SERVICE || '';
 
 // RF-1.1: Registro
 export const register = async (req, res) => {
   try {
-    const { nombre, correo, contraseña, confirmarContraseña } = req.body;
+    const { nombre, preguntaSeguridad, respuestaSeguridad } = req.body;
+    let { correo, contraseña, confirmarContraseña } = req.body;
+    if (typeof correo === 'string') correo = correo.trim();
+    if (typeof contraseña === 'string') contraseña = contraseña.normalize('NFC').trim();
+    if (typeof confirmarContraseña === 'string') confirmarContraseña = confirmarContraseña.normalize('NFC').trim();
+    const preguntaSegura = typeof preguntaSeguridad === 'string' ? preguntaSeguridad.trim() : '';
+    const respuestaSegura = typeof respuestaSeguridad === 'string' ? respuestaSeguridad.trim() : '';
 
     // Validaciones
-    if (!nombre || !correo || !contraseña || !confirmarContraseña) {
+    if (!nombre || !correo || !contraseña || !confirmarContraseña || !preguntaSegura || !respuestaSegura) {
       return res.status(400).json({ message: 'Todos los campos son requeridos' });
     }
 
@@ -41,8 +42,10 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const contraseñaHasheada = await bcrypt.hash(contraseña, salt);
 
+    const respuestaSeguridadHasheada = await bcrypt.hash(respuestaSegura, salt);
+
     // Crear usuario
-    const usuarioId = await createUser(nombre, correo, contraseñaHasheada);
+    const usuarioId = await createUser(nombre, correo, contraseñaHasheada, preguntaSegura, respuestaSeguridadHasheada);
 
     // Generar JWT (RNF-2)
     const token = jwt.sign(
@@ -70,7 +73,9 @@ export const register = async (req, res) => {
 // RF-1.2: Inicio de Sesión
 export const login = async (req, res) => {
   try {
-    const { correo, contraseña } = req.body;
+    let { correo, contraseña } = req.body;
+    if (typeof correo === 'string') correo = correo.trim();
+    if (typeof contraseña === 'string') contraseña = contraseña.normalize('NFC').trim();
 
     // Validaciones
     if (!correo || !contraseña) {
@@ -120,89 +125,54 @@ export const login = async (req, res) => {
   }
 };
 
-const createTransporter = async () => {
-  if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: Number(process.env.EMAIL_PORT) || 587,
-      secure: process.env.EMAIL_SECURE === 'true',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  }
-
-  if (EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    return nodemailer.createTransport({
-      service: EMAIL_SERVICE,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  }
-
-  const testAccount = await nodemailer.createTestAccount();
-  return nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  });
-};
-
-const sendResetEmail = async (correo, nombre, token) => {
-  const transporter = await createTransporter();
-  const resetLink = `${FRONTEND_URL}/?reset_token=${token}`;
-  const info = await transporter.sendMail({
-    from: EMAIL_FROM,
-    to: correo,
-    subject: 'Recuperación de contraseña - Plataforma',
-    html: `
-      <div style="font-family: Arial, sans-serif; color: #111;">
-        <h2>Hola ${nombre},</h2>
-        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
-        <p>Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-        <p><a href="${resetLink}" style="background:#f472b6;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Restablecer contraseña</a></p>
-        <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
-        <p>El enlace expira en 30 minutos.</p>
-      </div>
-    `,
-  });
-  return info;
-};
-
 // RF-1.3: Recuperación de Contraseña
 export const forgotPassword = async (req, res) => {
   try {
-    const { correo } = req.body;
+    let { correo, respuestaSeguridad, contraseña, confirmarContraseña } = req.body;
+    if (typeof correo === 'string') correo = correo.trim();
+    if (typeof respuestaSeguridad === 'string') respuestaSeguridad = respuestaSeguridad.trim().normalize('NFC');
+    if (typeof contraseña === 'string') contraseña = contraseña.normalize('NFC');
+    if (typeof confirmarContraseña === 'string') confirmarContraseña = confirmarContraseña.normalize('NFC');
 
     if (!correo) {
       return res.status(400).json({ message: 'El correo es requerido' });
     }
 
     const usuario = await getUserByEmail(correo);
-    if (!usuario) {
-      return res.status(200).json({ message: 'Si el correo existe, recibirás un enlace de recuperación' });
+    if (!usuario || !usuario.pregunta_seguridad || !usuario.respuesta_seguridad) {
+      return res.status(400).json({ message: 'No se pudo verificar la información de recuperación' });
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 min
-    await createPasswordResetToken(usuario.id, token, expiresAt);
-    const info = await sendResetEmail(usuario.correo, usuario.nombre, token);
-
-    console.log('Password reset email sent:', info.messageId);
-    if (info.previewUrl) {
-      console.log('Preview URL:', info.previewUrl);
+    if (!respuestaSeguridad && !contraseña && !confirmarContraseña) {
+      return res.status(200).json({
+        message: 'Pregunta de seguridad disponible',
+        preguntaSeguridad: usuario.pregunta_seguridad,
+      });
     }
+
+    if (!respuestaSeguridad || !contraseña || !confirmarContraseña) {
+      return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
+    if (contraseña.length < 8) {
+      return res.status(400).json({ message: 'La contraseña debe tener mínimo 8 caracteres' });
+    }
+
+    if (contraseña !== confirmarContraseña) {
+      return res.status(400).json({ message: 'Las contraseñas no coinciden' });
+    }
+
+    const respuestaValida = await bcrypt.compare(respuestaSeguridad, usuario.respuesta_seguridad);
+    if (!respuestaValida) {
+      return res.status(401).json({ message: 'La respuesta de seguridad es incorrecta' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const contraseñaHasheada = await bcrypt.hash(contraseña, salt);
+    await updateUserPassword(usuario.id, contraseñaHasheada);
 
     res.status(200).json({
-      message: 'Si el correo existe, recibirás un enlace de recuperación',
-      preview: info.previewUrl || undefined,
+      message: 'Contraseña restablecida correctamente. Ya puedes iniciar sesión.',
     });
   } catch (error) {
     console.error('Error en recuperación:', error);
@@ -212,7 +182,10 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { token, contraseña, confirmarContraseña } = req.body;
+    const { token } = req.body;
+    let { contraseña, confirmarContraseña } = req.body;
+    if (typeof contraseña === 'string') contraseña = contraseña.normalize('NFC');
+    if (typeof confirmarContraseña === 'string') confirmarContraseña = confirmarContraseña.normalize('NFC');
 
     if (!token || !contraseña || !confirmarContraseña) {
       return res.status(400).json({ message: 'Token y contraseñas son requeridos' });
@@ -269,7 +242,7 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const usuarioId = req.user.id;
-    const { nombre, fotoPerfil } = req.body;
+    const { nombre, fotoPerfil, preguntaSeguridad, respuestaSeguridad } = req.body;
 
     // Validaciones básicas
     const MAX_IMAGE_BYTES = 4 * 1024 * 1024; // 4 MB
@@ -281,7 +254,23 @@ export const updateProfile = async (req, res) => {
       }
     }
 
-    await updateUserProfile(usuarioId, nombre, fotoPerfil);
+    let fotoPerfilToSave = fotoPerfil;
+    if (fotoPerfil === undefined) {
+      const usuarioActual = await getUserById(usuarioId);
+      fotoPerfilToSave = usuarioActual?.foto_perfil || null;
+    }
+
+    await updateUserProfile(usuarioId, nombre, fotoPerfilToSave);
+
+    if (preguntaSeguridad || respuestaSeguridad) {
+      if (!preguntaSeguridad || !respuestaSeguridad) {
+        return res.status(400).json({ message: 'Pregunta y respuesta de seguridad son requeridas.' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const respuestaSeguridadHasheada = await bcrypt.hash(respuestaSeguridad, salt);
+      await updateUserSecurityQuestion(usuarioId, preguntaSeguridad, respuestaSeguridadHasheada);
+    }
 
     res.status(200).json({
       message: 'Perfil actualizado exitosamente',
@@ -299,7 +288,10 @@ export const updateProfile = async (req, res) => {
 export const changePassword = async (req, res) => {
   try {
     const usuarioId = req.user.id;
-    const { contraseñaActual, contraseñaNueva, confirmarContraseña } = req.body;
+    let { contraseñaActual, contraseñaNueva, confirmarContraseña } = req.body;
+    if (typeof contraseñaActual === 'string') contraseñaActual = contraseñaActual.normalize('NFC');
+    if (typeof contraseñaNueva === 'string') contraseñaNueva = contraseñaNueva.normalize('NFC');
+    if (typeof confirmarContraseña === 'string') confirmarContraseña = confirmarContraseña.normalize('NFC');
 
     if (!contraseñaActual || !contraseñaNueva || !confirmarContraseña) {
       return res.status(400).json({ message: 'Todos los campos son requeridos' });
@@ -339,6 +331,48 @@ export const changePassword = async (req, res) => {
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
     res.status(500).json({ message: 'Error al cambiar contraseña' });
+  }
+};
+
+export const getUserCourses = async (req, res) => {
+  try {
+    const registros = await getUserCourseProgress(req.user.id);
+    res.status(200).json({ courses: registros });
+  } catch (error) {
+    console.error('Error al obtener cursos del usuario:', error);
+    res.status(500).json({ message: 'Error al obtener tus cursos' });
+  }
+};
+
+export const registerUserCourseController = async (req, res) => {
+  try {
+    const { courseId, progreso = 10 } = req.body;
+
+    if (!courseId) {
+      return res.status(400).json({ message: 'El curso es requerido' });
+    }
+
+    const registro = await registerUserCourse(req.user.id, courseId, Number(progreso));
+    res.status(200).json({ message: 'Curso inscrito correctamente', course: registro });
+  } catch (error) {
+    console.error('Error al inscribir curso:', error);
+    res.status(500).json({ message: 'No se pudo guardar la inscripción' });
+  }
+};
+
+export const updateUserCourseProgressController = async (req, res) => {
+  try {
+    const { courseId, progreso } = req.body;
+
+    if (!courseId || progreso === undefined || progreso === null) {
+      return res.status(400).json({ message: 'El curso y el progreso son requeridos' });
+    }
+
+    const registro = await updateUserCourseProgress(req.user.id, courseId, Number(progreso));
+    res.status(200).json({ message: 'Progreso actualizado correctamente', course: registro });
+  } catch (error) {
+    console.error('Error al actualizar progreso:', error);
+    res.status(500).json({ message: 'No se pudo actualizar el progreso' });
   }
 };
 

@@ -7,6 +7,9 @@ import {
   getProfile,
   updateProfile,
   changePassword,
+  getUserCourses,
+  registerUserCourseController,
+  updateUserCourseProgressController,
   listUsers,
   updateUserRoleController,
 } from '../controllers/authController.js';
@@ -24,6 +27,9 @@ router.post('/reset-password', resetPassword); // RF-1.3
 router.get('/profile', authenticateToken, getProfile);              // RF-1.4
 router.put('/profile', authenticateToken, updateProfile);           // RF-1.4
 router.put('/change-password', authenticateToken, changePassword);  // RF-1.4
+router.get('/courses', authenticateToken, getUserCourses);
+router.post('/courses/register', authenticateToken, registerUserCourseController);
+router.put('/courses/progress', authenticateToken, updateUserCourseProgressController);
 
 // Rutas administrativas (requieren autenticación y rol admin)
 router.get('/users', authenticateToken, isAdmin, listUsers);                           // RF-1.5

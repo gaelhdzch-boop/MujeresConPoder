@@ -61,7 +61,11 @@ export const Login = ({ onSwitchToSignUp, onLoginSuccess, onRecoverPassword, onC
     setLoading(true);
     
     try {
-      const response = await authService.login(formData.email, formData.password);
+      const email = formData.email.trim();
+      const pass = typeof formData.password === 'string'
+        ? formData.password.normalize('NFC').trim()
+        : formData.password;
+      const response = await authService.login(email, pass);
 
       // Guardar token y usuario
       localStorage.setItem('token', response.token);

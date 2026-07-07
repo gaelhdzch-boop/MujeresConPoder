@@ -31,19 +31,26 @@ export const apiCall = async (endpoint, method = 'GET', body = null) => {
 
 // Autenticación
 export const authService = {
-  register: (nombre, correo, contraseña, confirmarContraseña) =>
+  register: (nombre, correo, contraseña, confirmarContraseña, preguntaSeguridad, respuestaSeguridad) =>
     apiCall('/auth/register', 'POST', {
       nombre,
       correo,
       contraseña,
       confirmarContraseña,
+      preguntaSeguridad,
+      respuestaSeguridad,
     }),
 
   login: (correo, contraseña) =>
     apiCall('/auth/login', 'POST', { correo, contraseña }),
 
-  forgotPassword: (correo) =>
-    apiCall('/auth/forgot-password', 'POST', { correo }),
+  forgotPassword: (correo, respuestaSeguridad, contraseña, confirmarContraseña) =>
+    apiCall('/auth/forgot-password', 'POST', {
+      correo,
+      respuestaSeguridad,
+      contraseña,
+      confirmarContraseña,
+    }),
 
   resetPassword: (token, contraseña, confirmarContraseña) =>
     apiCall('/auth/reset-password', 'POST', {
@@ -54,8 +61,13 @@ export const authService = {
 
   getProfile: () => apiCall('/auth/profile', 'GET'),
 
-  updateProfile: (nombre, fotoPerfil) =>
-    apiCall('/auth/profile', 'PUT', { nombre, fotoPerfil }),
+  updateProfile: (nombre, fotoPerfil, preguntaSeguridad, respuestaSeguridad) => {
+    const body = { nombre };
+    if (fotoPerfil !== undefined) body.fotoPerfil = fotoPerfil;
+    if (preguntaSeguridad !== undefined) body.preguntaSeguridad = preguntaSeguridad;
+    if (respuestaSeguridad !== undefined) body.respuestaSeguridad = respuestaSeguridad;
+    return apiCall('/auth/profile', 'PUT', body);
+  },
 
   changePassword: (contraseñaActual, contraseñaNueva, confirmarContraseña) =>
     apiCall('/auth/change-password', 'PUT', {
@@ -68,4 +80,12 @@ export const authService = {
 
   updateUserRole: (usuarioId, rol) =>
     apiCall('/auth/users/role', 'PUT', { usuarioId, rol }),
+
+  getUserCourses: () => apiCall('/auth/courses', 'GET'),
+
+  registerCourse: (courseId, progreso = 10) =>
+    apiCall('/auth/courses/register', 'POST', { courseId, progreso }),
+
+  updateCourseProgress: (courseId, progreso) =>
+    apiCall('/auth/courses/progress', 'PUT', { courseId, progreso }),
 };

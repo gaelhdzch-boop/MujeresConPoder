@@ -4,7 +4,7 @@
 
 ```
 plataforma/
-├── mi-plataforma/          (Frontend - React + Vite) ✅
+├── frontend/               (Frontend - React + Vite) ✅
 │   ├── src/
 │   ├── package.json
 │   └── ...
@@ -114,7 +114,7 @@ npm run dev
 En **otra terminal**:
 
 ```bash
-cd mi-plataforma
+cd frontend
 npm run dev
 ```
 

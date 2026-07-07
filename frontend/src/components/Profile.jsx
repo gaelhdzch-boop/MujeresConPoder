@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { COLORS } from '../constants/colors';
 import { authService } from '../services/api';
 import '../styles/Profile.css';
+import Finanzas from './Finanzas';
 
 export const Profile = ({ onLogout }) => {
   const [user, setUser] = useState(() => {
@@ -11,16 +12,27 @@ export const Profile = ({ onLogout }) => {
       return null;
     }
   });
-  const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+  const MAX_IMAGE_SIZE = 4 * 1024 * 1024; // 4 MB (match backend limit)
 
   const [formData, setFormData] = useState({
     nombre: user?.nombre || user?.name || '',
     correo: user?.correo || user?.email || '',
     fotoPerfil: user?.fotoPerfil || user?.foto_perfil || '',
+    preguntaSeguridad: '',
+    respuestaSeguridad: '',
   });
+
+  const securityQuestions = [
+    '¿Cuál es el nombre de tu primera mascota?',
+    '¿En qué ciudad nació tu madre?',
+    '¿Cuál fue tu colegio de primaria?',
+    '¿Cuál es tu color favorito?',
+    '¿Cuál fue el primer apellido de tu mejor amiga?',
+  ];
   const [avatarPreview, setAvatarPreview] = useState(
     user?.fotoPerfil || user?.foto_perfil || ''
   );
+  const [fotoPerfilChanged, setFotoPerfilChanged] = useState(false);
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,6 +43,10 @@ export const Profile = ({ onLogout }) => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [isCoursesOpen, setIsCoursesOpen] = useState(false);
+  const [isFinanzasOpen, setIsFinanzasOpen] = useState(false);
+  const [inscritosPerfil, setInscritosPerfil] = useState([]);
+  const [progresoPerfil, setProgresoPerfil] = useState({});
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -42,6 +58,8 @@ export const Profile = ({ onLogout }) => {
           nombre: loadedUser.nombre || loadedUser.name || '',
           correo: loadedUser.correo || loadedUser.email || '',
           fotoPerfil: loadedUser.fotoPerfil || loadedUser.foto_perfil || '',
+          preguntaSeguridad: loadedUser.pregunta_seguridad || '',
+          respuestaSeguridad: '',
         });
         setAvatarPreview(
           loadedUser.fotoPerfil || loadedUser.foto_perfil || ''
@@ -54,6 +72,53 @@ export const Profile = ({ onLogout }) => {
     };
 
     loadProfile();
+  }, []);
+
+  useEffect(() => {
+    const loadCoursesFromStorage = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('mc_cursosInscritos')) || [];
+        const prog = JSON.parse(localStorage.getItem('mc_progresoCursos')) || {};
+        setInscritosPerfil(stored);
+        setProgresoPerfil(prog);
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    const loadCoursesFromApi = async () => {
+      if (!localStorage.getItem('token')) {
+        return;
+      }
+
+      try {
+        const data = await authService.getUserCourses();
+        const cursos = Array.isArray(data?.courses) ? data.courses : [];
+        const ids = cursos.map((curso) => curso.curso_id);
+        const progresoMap = cursos.reduce((map, curso) => {
+          map[curso.curso_id] = Number(curso.progreso || 0);
+          return map;
+        }, {});
+        if (ids.length) {
+          setInscritosPerfil(ids);
+          setProgresoPerfil(progresoMap);
+        }
+      } catch (err) {
+        // si hay error de API, mantenemos el cache local
+      }
+    };
+
+    loadCoursesFromStorage();
+    loadCoursesFromApi();
+
+    const handler = (e) => {
+      const { cursosInscritos, progresoCursos } = e.detail || {};
+      if (Array.isArray(cursosInscritos)) setInscritosPerfil(cursosInscritos);
+      if (progresoCursos && typeof progresoCursos === 'object') setProgresoPerfil(progresoCursos);
+    };
+
+    window.addEventListener('mc:coursesUpdated', handler);
+    return () => window.removeEventListener('mc:coursesUpdated', handler);
   }, []);
 
   const handleInputChange = (e) => {
@@ -77,6 +142,7 @@ export const Profile = ({ onLogout }) => {
       const base64 = reader.result;
       setAvatarPreview(base64);
       setFormData((prev) => ({ ...prev, fotoPerfil: base64 }));
+      setFotoPerfilChanged(true);
       setError('');
     };
     reader.readAsDataURL(file);
@@ -101,11 +167,17 @@ export const Profile = ({ onLogout }) => {
     setError('');
 
     try {
-      await authService.updateProfile(formData.nombre, formData.fotoPerfil);
+      await authService.updateProfile(
+        formData.nombre,
+        fotoPerfilChanged ? formData.fotoPerfil : undefined,
+        formData.preguntaSeguridad,
+        formData.respuestaSeguridad
+      );
       const updatedUser = {
         ...user,
         nombre: formData.nombre,
-        fotoPerfil: formData.fotoPerfil,
+        fotoPerfil: fotoPerfilChanged ? formData.fotoPerfil : user?.fotoPerfil || user?.foto_perfil || '',
+        pregunta_seguridad: formData.preguntaSeguridad,
       };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -127,7 +199,10 @@ export const Profile = ({ onLogout }) => {
     setPasswordMessage('');
     setPasswordError('');
 
-    const { currentPassword, newPassword, confirmPassword } = passwordData;
+    let { currentPassword, newPassword, confirmPassword } = passwordData;
+    if (typeof currentPassword === 'string') currentPassword = currentPassword.normalize('NFC');
+    if (typeof newPassword === 'string') newPassword = newPassword.normalize('NFC');
+    if (typeof confirmPassword === 'string') confirmPassword = confirmPassword.normalize('NFC');
     if (!currentPassword || !newPassword || !confirmPassword) {
       setPasswordError('Todos los campos de contraseña son requeridos.');
       setPasswordSaving(false);
@@ -257,6 +332,40 @@ export const Profile = ({ onLogout }) => {
                 </div>
               </div>
 
+              <div className="profile-form-group">
+                <label htmlFor="preguntaSeguridad">Pregunta de seguridad</label>
+                <select
+                  id="preguntaSeguridad"
+                  name="preguntaSeguridad"
+                  value={formData.preguntaSeguridad}
+                  onChange={handleInputChange}
+                  className="form-select"
+                >
+                  <option value="">Selecciona una pregunta</option>
+                  {securityQuestions.map((question) => (
+                    <option key={question} value={question}>
+                      {question}
+                    </option>
+                  ))}
+                </select>
+                <small className="text-muted d-block mt-1">
+                  Selecciona una pregunta de seguridad para recuperar tu contraseña cuando la olvides.
+                </small>
+              </div>
+
+              <div className="profile-form-group">
+                <label htmlFor="respuestaSeguridad">Respuesta de seguridad</label>
+                <input
+                  type="text"
+                  id="respuestaSeguridad"
+                  name="respuestaSeguridad"
+                  value={formData.respuestaSeguridad}
+                  onChange={handleInputChange}
+                  className="form-control"
+                  placeholder="Tu respuesta secreta"
+                />
+              </div>
+
               {message && <div className="profile-alert profile-success">{message}</div>}
               {error && <div className="profile-alert profile-error">{error}</div>}
 
@@ -336,6 +445,73 @@ export const Profile = ({ onLogout }) => {
                   {passwordSaving ? 'Guardando...' : 'Cambiar contraseña'}
                 </button>
               </form>
+            )}
+          </section>
+
+          <section className="profile-card profile-form-card">
+            <div className="profile-form-header">
+              <button
+                type="button"
+                className="collapse-toggle"
+                onClick={() => setIsCoursesOpen((v) => !v)}
+                aria-expanded={isCoursesOpen}
+              >
+                <div>
+                  <h2 style={{ display: 'inline' }}>Cursos</h2>
+                  <span className="collapse-indicator">{isCoursesOpen ? '▲' : '▼'}</span>
+                </div>
+                <p className="mb-0">Revisa los cursos inscritos y tu avance.</p>
+              </button>
+            </div>
+
+            {isCoursesOpen && (
+              <div className="profile-courses-list">
+                {inscritosPerfil.length > 0 ? (
+                  <div className="profile-courses-grid">
+                    {inscritosPerfil.map((cursoId) => (
+                      <article key={cursoId} className="profile-course-item">
+                        <h4>{cursoId.replace(/-/g, ' ')}</h4>
+                        <p className="course-category">Curso inscrito</p>
+                        <div className="profile-progress-label">
+                          <span>Progreso</span>
+                          <strong>{progresoPerfil[cursoId] ?? 0}%</strong>
+                        </div>
+                        <div className="profile-progress-bar" aria-label={`Progreso ${progresoPerfil[cursoId] ?? 0}%`}>
+                          <span style={{ width: `${Math.min(100, Number(progresoPerfil[cursoId] ?? 0))}%` }} />
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="profile-empty-state">
+                    <p>Aún no tienes cursos inscritos.</p>
+                    <p>Explora el marketplace y activa tus primeros cursos para verlos aquí.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section className="profile-card profile-form-card">
+            <div className="profile-form-header">
+              <button
+                type="button"
+                className="collapse-toggle"
+                onClick={() => setIsFinanzasOpen((v) => !v)}
+                aria-expanded={isFinanzasOpen}
+              >
+                <div>
+                  <h2 style={{ display: 'inline' }}>Finanzas</h2>
+                  <span className="collapse-indicator">{isFinanzasOpen ? '▲' : '▼'}</span>
+                </div>
+                <p className="mb-0">Gestiona tus finanzas para tomar mejores decisiones.</p>
+              </button>
+            </div>
+
+            {isFinanzasOpen && (
+              <div className="profile-finanzas-content">
+                <Finanzas />
+              </div>
             )}
           </section>
         </div>

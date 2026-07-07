@@ -9,7 +9,17 @@ export const SignUp = ({ onSwitchToLogin, onCancel }) => {
     email: '',
     password: '',
     confirmPassword: '',
+    securityQuestion: '',
+    securityAnswer: '',
   });
+
+  const securityQuestions = [
+    '¿Cuál es el nombre de tu primera mascota?',
+    '¿En qué ciudad nació tu madre?',
+    '¿Cuál fue tu colegio de primaria?',
+    '¿Cuál es tu color favorito?',
+    '¿Cuál fue el primer apellido de tu mejor amiga?',
+  ];
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -46,6 +56,15 @@ export const SignUp = ({ onSwitchToLogin, onCancel }) => {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
+    // Validar pregunta de seguridad
+    if (!formData.securityQuestion.trim()) {
+      newErrors.securityQuestion = 'La pregunta de seguridad es requerida';
+    }
+
+    if (!formData.securityAnswer.trim()) {
+      newErrors.securityAnswer = 'La respuesta de seguridad es requerida';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -75,11 +94,21 @@ export const SignUp = ({ onSwitchToLogin, onCancel }) => {
     setLoading(true);
     
     try {
+      const name = formData.name.trim();
+      const email = formData.email.trim();
+      const pass = typeof formData.password === 'string'
+        ? formData.password.normalize('NFC').trim()
+        : formData.password;
+      const confirm = typeof formData.confirmPassword === 'string'
+        ? formData.confirmPassword.normalize('NFC').trim()
+        : formData.confirmPassword;
       const response = await authService.register(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.confirmPassword
+        name,
+        email,
+        pass,
+        confirm,
+        formData.securityQuestion.trim(),
+        formData.securityAnswer.trim()
       );
 
       // Guardar token
@@ -87,7 +116,7 @@ export const SignUp = ({ onSwitchToLogin, onCancel }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
 
       setSuccess(true);
-      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+      setFormData({ name: '', email: '', password: '', confirmPassword: '', securityQuestion: '', securityAnswer: '' });
       
       // Redirigir a login después de 2 segundos
       setTimeout(() => {
@@ -208,6 +237,45 @@ export const SignUp = ({ onSwitchToLogin, onCancel }) => {
             {errors.confirmPassword && (
               <div className="invalid-feedback d-block">{errors.confirmPassword}</div>
             )}
+          </div>
+
+          <div className="form-group mb-3">
+            <label htmlFor="securityQuestion" className="form-label fw-bold">
+              Pregunta de seguridad
+            </label>
+            <select
+              id="securityQuestion"
+              name="securityQuestion"
+              className={`form-select ${errors.securityQuestion ? 'is-invalid' : ''}`}
+              value={formData.securityQuestion}
+              onChange={handleChange}
+              disabled={loading}
+            >
+              <option value="">Selecciona una pregunta</option>
+              {securityQuestions.map((question) => (
+                <option key={question} value={question}>
+                  {question}
+                </option>
+              ))}
+            </select>
+            {errors.securityQuestion && <div className="invalid-feedback d-block">{errors.securityQuestion}</div>}
+          </div>
+
+          <div className="form-group mb-3">
+            <label htmlFor="securityAnswer" className="form-label fw-bold">
+              Respuesta de seguridad
+            </label>
+            <input
+              type="text"
+              id="securityAnswer"
+              name="securityAnswer"
+              className={`form-control ${errors.securityAnswer ? 'is-invalid' : ''}`}
+              value={formData.securityAnswer}
+              onChange={handleChange}
+              placeholder="Tu respuesta"
+              disabled={loading}
+            />
+            {errors.securityAnswer && <div className="invalid-feedback d-block">{errors.securityAnswer}</div>}
           </div>
 
           {/* Error general */}

@@ -1,0 +1,12 @@
+.marketplace-page .market-header h2 { font-size: 2rem; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.product-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; display: flex; flex-direction: column; }
+.product-image { height: 140px; background: linear-gradient(90deg,#f6d0e6,#dff7ef); display:flex;align-items:center;justify-content:center;font-weight:bold;color:#999 }
+.product-body { padding: 1rem; display:flex;flex-direction:column; gap:0.5rem; flex:1 }
+.product-desc { color:#444; margin-top:0.25rem }
+.product-footer { margin-top:auto }
+.product-price { color:#111 }
+
+/* Inputs: fondo blanco y texto negro */
+.marketplace-page .form-control { background: #fff; color: #000; }
+.marketplace-page .form-control::placeholder { color: rgba(0,0,0,0.6); }

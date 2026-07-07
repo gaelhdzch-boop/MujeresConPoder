@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
   correo VARCHAR(100) UNIQUE NOT NULL,
   contraseña VARCHAR(255) NOT NULL,
   foto_perfil LONGTEXT DEFAULT NULL,
+  pregunta_seguridad VARCHAR(255) DEFAULT NULL,
+  respuesta_seguridad VARCHAR(255) DEFAULT NULL,
   rol ENUM('usuario', 'admin') DEFAULT 'usuario',
   estado ENUM('activo', 'inactivo') DEFAULT 'activo',
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -41,4 +43,18 @@ CREATE TABLE IF NOT EXISTS sesiones (
   user_agent VARCHAR(255),
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
   INDEX idx_usuario_id (usuario_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de cursos inscritos por usuario
+CREATE TABLE IF NOT EXISTS cursos_usuario (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  curso_id VARCHAR(100) NOT NULL,
+  progreso INT NOT NULL DEFAULT 0,
+  estado ENUM('inscrito', 'completado') DEFAULT 'inscrito',
+  fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_usuario_curso (usuario_id, curso_id),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  INDEX idx_curso_id (curso_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

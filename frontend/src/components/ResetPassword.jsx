@@ -45,7 +45,9 @@ export const ResetPassword = ({ token, onResetSuccess, onSwitchToLogin, onCancel
     setErrors({});
 
     try {
-      await authService.resetPassword(token, formData.password, formData.confirmPassword);
+      const pass = typeof formData.password === 'string' ? formData.password.normalize('NFC') : formData.password;
+      const confirm = typeof formData.confirmPassword === 'string' ? formData.confirmPassword.normalize('NFC') : formData.confirmPassword;
+      await authService.resetPassword(token, pass, confirm);
       setMessage('Contraseña restablecida correctamente. Ya puedes iniciar sesión.');
       setFormData({ password: '', confirmPassword: '' });
       if (typeof onResetSuccess === 'function') {

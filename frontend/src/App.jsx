@@ -4,6 +4,8 @@ import { HeroSection } from './components/HeroSection';
 import { FeaturesGrid } from './components/FeaturesGrid';
 import MarketplaceCursos from './components/MarketplaceCursos';
 import Finanzas from './components/Finanzas';
+import Marketplace from './components/Marketplace';
+import Cursos from './components/Cursos';
 import Comunidad from './components/Comunidad';
 import { OpportunitiesBanner } from './components/OpportunitiesBanner';
 import { AuthPage } from './components/AuthPage';
@@ -58,6 +60,12 @@ function App() {
 
   const navigateToClosed = () => setCurrentPage('closed');
 
+  const navigateToCursos = () => setCurrentPage('cursos');
+  const navigateToMarketplace = () => setCurrentPage('marketplace');
+  const navigateToComunidad = () => setCurrentPage('comunidad');
+  const navigateToOportunidades = () => setCurrentPage('oportunidades');
+  const navigateToFinanzas = () => setCurrentPage('finanzas');
+
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
     setCurrentPage('profile');
@@ -82,7 +90,21 @@ function App() {
   if (currentPage === 'profile') {
     return (
       <div>
-        <Navbar onCreateAccountClick={navigateToSignup} onLoginClick={navigateToLogin} onLogoClick={handleLogoClick} onProfileClick={navigateToProfile} isAuthenticated={isAuthenticated} />
+        <Navbar
+          onCreateAccountClick={navigateToSignup}
+          onLoginClick={navigateToLogin}
+          onLogoClick={handleLogoClick}
+          onProfileClick={navigateToProfile}
+          isAuthenticated={isAuthenticated}
+          onNavigate={(p) => {
+            if (p === 'cursos') navigateToCursos();
+            if (p === 'marketplace') navigateToMarketplace();
+            if (p === 'comunidad') navigateToComunidad();
+            if (p === 'finanzas') navigateToFinanzas();
+            if (p === 'oportunidades') navigateToOportunidades();
+          }}
+          onLogout={handleLogout}
+        />
         <Profile onLogout={handleLogout} />
       </div>
     );
@@ -91,7 +113,7 @@ function App() {
   if (currentPage === 'closed') {
     return (
       <div>
-        <Navbar onCreateAccountClick={navigateToSignup} onLoginClick={navigateToLogin} onLogoClick={handleLogoClick} onProfileClick={navigateToProfile} isAuthenticated={isAuthenticated} />
+        {/* Navbar no se muestra al cerrar sesión */}
         <SessionClosed onReturnHome={navigateHome} />
       </div>
     );
@@ -99,14 +121,37 @@ function App() {
 
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
-      <Navbar onCreateAccountClick={navigateToSignup} onLoginClick={navigateToLogin} onLogoClick={handleLogoClick} onProfileClick={navigateToProfile} isAuthenticated={isAuthenticated} />
+      {isAuthenticated && (
+        <Navbar
+          onCreateAccountClick={navigateToSignup}
+          onLoginClick={navigateToLogin}
+          onLogoClick={handleLogoClick}
+          onProfileClick={navigateToProfile}
+          isAuthenticated={isAuthenticated}
+          onNavigate={(p) => {
+            if (p === 'cursos') navigateToCursos();
+            if (p === 'marketplace') navigateToMarketplace();
+            if (p === 'comunidad') navigateToComunidad();
+            if (p === 'finanzas') navigateToFinanzas();
+            if (p === 'oportunidades') navigateToOportunidades();
+          }}
+          onLogout={handleLogout}
+        />
+      )}
+
       <main>
-        <HeroSection onCreateAccountClick={navigateToSignup} />
-        <FeaturesGrid />
-        <MarketplaceCursos />
-        <Finanzas />
-        <Comunidad />
-        <OpportunitiesBanner />
+        {currentPage === 'home' && (
+          <>
+            <HeroSection onCreateAccountClick={navigateToSignup} />
+            <FeaturesGrid />
+          </>
+        )}
+
+        {currentPage === 'cursos' && <Cursos />}
+        {currentPage === 'marketplace' && <Marketplace />}
+        {currentPage === 'comunidad' && <Comunidad />}
+        {currentPage === 'oportunidades' && <OpportunitiesBanner />}
+        {currentPage === 'finanzas' && <Finanzas />}
       </main>
     </div>
   );
