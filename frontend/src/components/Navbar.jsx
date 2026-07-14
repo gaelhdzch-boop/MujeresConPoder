@@ -4,8 +4,9 @@ export const Navbar = ({ onCreateAccountClick, onLoginClick, onLogoClick, onProf
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-          <button className="navbar-brand fw-bold btn btn-link p-0" type="button" onClick={onLogoClick}>
-            Logo
+          <button className="navbar-brand fw-bold btn btn-link p-0 d-flex align-items-center gap-2" type="button" onClick={onLogoClick}>
+            <img src="/logo.ico" alt="OMNIA KIN logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            <span className="fw-bold">OMNIA KIN</span>
           </button>
         <button 
           className="navbar-toggler" 
