@@ -10,6 +10,10 @@ import {
   getUserCourses,
   registerUserCourseController,
   updateUserCourseProgressController,
+  getMarketplaceProductsController,
+  createMarketplaceProductController,
+  updateMarketplaceProductStockController,
+  deleteMarketplaceProductController,
   listUsers,
   updateUserRoleController,
 } from '../controllers/authController.js';
@@ -30,6 +34,10 @@ router.put('/change-password', authenticateToken, changePassword);  // RF-1.4
 router.get('/courses', authenticateToken, getUserCourses);
 router.post('/courses/register', authenticateToken, registerUserCourseController);
 router.put('/courses/progress', authenticateToken, updateUserCourseProgressController);
+router.get('/marketplace', authenticateToken, getMarketplaceProductsController);
+router.post('/marketplace', authenticateToken, createMarketplaceProductController);
+router.put('/marketplace/:id/stock', authenticateToken, updateMarketplaceProductStockController);
+router.delete('/marketplace/:id', authenticateToken, deleteMarketplaceProductController);
 
 // Rutas administrativas (requieren autenticación y rol admin)
 router.get('/users', authenticateToken, isAdmin, listUsers);                           // RF-1.5

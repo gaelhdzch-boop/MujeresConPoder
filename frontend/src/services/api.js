@@ -17,18 +17,14 @@ export const apiCall = async (endpoint, method = 'GET', body = null) => {
     options.body = JSON.stringify(body);
   }
 
-  try {
-    const response = await fetch(`${API_URL}${endpoint}`, options);
-    const data = await response.json();
+  const response = await fetch(`${API_URL}${endpoint}`, options);
+  const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Error en la solicitud');
-    }
-
-    return data;
-  } catch (error) {
-    throw error;
+  if (!response.ok) {
+    throw new Error(data.message || 'Error en la solicitud');
   }
+
+  return data;
 };
 
 // Autenticación

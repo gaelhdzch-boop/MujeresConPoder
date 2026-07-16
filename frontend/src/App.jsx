@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { FeaturesGrid } from './components/FeaturesGrid';
-import MarketplaceCursos from './components/MarketplaceCursos';
 import Finanzas from './components/Finanzas';
 import Marketplace from './components/Marketplace';
 import Cursos from './components/Cursos';
@@ -14,25 +13,17 @@ import SessionClosed from './components/SessionClosed';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home'); // 'home', 'auth' o 'profile'
-  const [authView, setAuthView] = useState('login'); // 'login', 'signup', 'forgot' o 'reset'
-  const [resetToken, setResetToken] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-
-  useEffect(() => {
+  const [resetToken] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('reset_token');
-    if (token) {
-      setAuthView('reset');
-      setResetToken(token);
-      setCurrentPage('auth');
-      return;
-    }
-
-    if (isAuthenticated) {
-      setCurrentPage('profile');
-    }
-  }, [isAuthenticated]);
+    return params.get('reset_token');
+  });
+  const [authView, setAuthView] = useState(() => (resetToken ? 'reset' : 'login'));
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (resetToken) return 'auth';
+    if (localStorage.getItem('token')) return 'profile';
+    return 'home';
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
 
   const navigateToAuth = (view = 'signup') => {
     if (isAuthenticated) {
@@ -58,8 +49,6 @@ function App() {
     setCurrentPage('closed');
   };
 
-  const navigateToClosed = () => setCurrentPage('closed');
-
   const navigateToCursos = () => setCurrentPage('cursos');
   const navigateToMarketplace = () => setCurrentPage('marketplace');
   const navigateToComunidad = () => setCurrentPage('comunidad');
@@ -74,12 +63,12 @@ function App() {
   if (currentPage === 'auth') {
     return (
       <AuthPage
+        key={`${authView}-${resetToken || ''}`}
         initialView={authView}
         resetToken={resetToken}
         onLoginSuccess={handleLoginSuccess}
         onResetSuccess={() => {
           setAuthView('login');
-          setResetToken(null);
           window.history.replaceState({}, '', window.location.pathname);
         }}
         onCancel={navigateHome}

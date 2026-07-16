@@ -1,19 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SignUp } from './SignUp';
 import { Login } from './Login';
 import { ForgotPassword } from './ForgotPassword';
 import { ResetPassword } from './ResetPassword';
 
 export const AuthPage = ({ initialView = 'login', resetToken = null, onLoginSuccess, onResetSuccess, onCancel }) => {
-  const [currentView, setCurrentView] = useState(initialView); // 'login', 'signup', 'forgot' o 'reset'
-
-  useEffect(() => {
-    if (resetToken) {
-      setCurrentView('reset');
-    } else {
-      setCurrentView(initialView);
-    }
-  }, [initialView, resetToken]);
+  const [currentView, setCurrentView] = useState(resetToken ? 'reset' : initialView); // 'login', 'signup', 'forgot' o 'reset'
 
   return (
     <div className="auth-page">

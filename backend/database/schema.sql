@@ -58,3 +58,24 @@ CREATE TABLE IF NOT EXISTS cursos_usuario (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
   INDEX idx_curso_id (curso_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de productos del marketplace
+CREATE TABLE IF NOT EXISTS marketplace_productos (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  nombre_articulo VARCHAR(255) NOT NULL,
+  emprendimiento VARCHAR(255) NOT NULL,
+  categoria VARCHAR(100) NOT NULL,
+  precio DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  ciudad VARCHAR(100) DEFAULT NULL,
+  contacto VARCHAR(100) DEFAULT NULL,
+  descripcion TEXT DEFAULT NULL,
+  stock INT NOT NULL DEFAULT 0,
+  imagen LONGTEXT DEFAULT NULL,
+  estado ENUM('publicado', 'vendido', 'inactivo') DEFAULT 'publicado',
+  fecha_publicacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  INDEX idx_usuario_id (usuario_id),
+  INDEX idx_categoria (categoria),
+  INDEX idx_ciudad (ciudad)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

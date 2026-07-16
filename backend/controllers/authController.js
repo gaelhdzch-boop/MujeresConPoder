@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getUserByEmail, createUser, getUserById, getUserWithPasswordById, updateUserPassword, updateUserProfile, updateUserSecurityQuestion, getAllUsers, updateUserRole, createPasswordResetToken, getPasswordResetByToken, markPasswordResetTokenUsed, getUserCourseProgress, registerUserCourse, updateUserCourseProgress } from '../models/userModel.js';
+import { getUserByEmail, createUser, getUserById, getUserWithPasswordById, updateUserPassword, updateUserProfile, updateUserSecurityQuestion, getAllUsers, updateUserRole, createPasswordResetToken, getPasswordResetByToken, markPasswordResetTokenUsed, getUserCourseProgress, registerUserCourse, updateUserCourseProgress, getMarketplaceProducts, createMarketplaceProduct, updateMarketplaceProductStock, deleteMarketplaceProduct } from '../models/userModel.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -281,6 +281,96 @@ export const updateProfile = async (req, res) => {
       return res.status(413).json({ message: 'La imagen es demasiado pesada para la base de datos. Usa una imagen más liviana.' });
     }
     res.status(500).json({ message: 'Error al actualizar perfil' });
+  }
+};
+
+export const getMarketplaceProductsController = async (req, res) => {
+  try {
+    const products = await getMarketplaceProducts();
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error('Error al obtener productos del marketplace:', error);
+    res.status(500).json({ message: 'Error al obtener productos del marketplace' });
+  }
+};
+
+export const createMarketplaceProductController = async (req, res) => {
+  try {
+    const { nombreArticulo, emprendimiento, categoria, precio, ciudad, contacto, descripcion, stock, imagen } = req.body;
+
+    if (!nombreArticulo || !emprendimiento || !categoria || precio === undefined || precio === null || stock === undefined || stock === null) {
+      return res.status(400).json({ message: 'Nombre del artículo, emprendimiento, categoría, precio y stock son requeridos' });
+    }
+
+    const precioNumber = Number(precio);
+    const stockNumber = Number(stock);
+    if (Number.isNaN(precioNumber) || precioNumber < 0 || Number.isNaN(stockNumber) || stockNumber < 0) {
+      return res.status(400).json({ message: 'Precio y stock deben ser números válidos no negativos' });
+    }
+
+    const product = await createMarketplaceProduct(
+      req.user.id,
+      nombreArticulo,
+      emprendimiento,
+      categoria,
+      precioNumber,
+      ciudad || null,
+      contacto || null,
+      descripcion || null,
+      stockNumber,
+      imagen || null
+    );
+
+    res.status(201).json({ message: 'Producto publicado correctamente', product });
+  } catch (error) {
+    console.error('Error al publicar producto en el marketplace:', error);
+    res.status(500).json({ message: 'Error al publicar el producto' });
+  }
+};
+
+export const updateMarketplaceProductStockController = async (req, res) => {
+  try {
+    const productoId = req.params.id;
+    const { stock } = req.body;
+
+    if (!productoId || stock === undefined || stock === null) {
+      return res.status(400).json({ message: 'ID del producto y stock son requeridos' });
+    }
+
+    const stockNumber = Number(stock);
+    if (Number.isNaN(stockNumber) || stockNumber < 0) {
+      return res.status(400).json({ message: 'Stock debe ser un número válido no negativo' });
+    }
+
+    const product = await updateMarketplaceProductStock(req.user.id, productoId, stockNumber);
+    if (!product) {
+      return res.status(404).json({ message: 'Producto no encontrado o no tienes permisos para editarlo' });
+    }
+
+    res.status(200).json({ message: 'Stock actualizado correctamente', product });
+  } catch (error) {
+    console.error('Error al actualizar stock del marketplace:', error);
+    res.status(500).json({ message: 'Error al actualizar el stock del producto' });
+  }
+};
+
+export const deleteMarketplaceProductController = async (req, res) => {
+  try {
+    const productoId = req.params.id;
+
+    if (!productoId) {
+      return res.status(400).json({ message: 'ID del producto es requerido' });
+    }
+
+    const deleted = await deleteMarketplaceProduct(req.user.id, productoId);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Producto no encontrado o no tienes permisos para eliminarlo' });
+    }
+
+    res.status(200).json({ message: 'Publicación eliminada correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar producto del marketplace:', error);
+    res.status(500).json({ message: 'Error al eliminar el producto' });
   }
 };
 

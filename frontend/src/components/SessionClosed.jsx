@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const SessionClosed = ({ onReturnHome }) => {
   return (
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

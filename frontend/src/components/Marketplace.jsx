@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { COLORS } from '../constants/colors';
 import '../styles/Marketplace.css';
 

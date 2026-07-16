@@ -187,8 +187,22 @@ export default function MarketplaceCursos() {
   const [categoriaCurso, setCategoriaCurso] = useState('Todos');
   const [nivelCurso, setNivelCurso] = useState('Todos');
   const [cursoSeleccionado, setCursoSeleccionado] = useState(cursos[0]);
-  const [cursosInscritos, setCursosInscritos] = useState([]);
-  const [progresoCursos, setProgresoCursos] = useState({});
+  const [cursosInscritos, setCursosInscritos] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('mc_cursosInscritos')) || [];
+    } catch {
+      localStorage.removeItem('mc_cursosInscritos');
+      return [];
+    }
+  });
+  const [progresoCursos, setProgresoCursos] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('mc_progresoCursos')) || {};
+    } catch {
+      localStorage.removeItem('mc_progresoCursos');
+      return {};
+    }
+  });
   const [mensajeCurso, setMensajeCurso] = useState('');
   const [categoriaProducto, setCategoriaProducto] = useState('Todos');
   const [ordenProducto, setOrdenProducto] = useState('destacados');
@@ -198,20 +212,9 @@ export default function MarketplaceCursos() {
   const [formulario, setFormulario] = useState(formularioVacio);
   const [mensajeFormulario, setMensajeFormulario] = useState('');
 
-  // Persistir cursos inscritos y progreso en localStorage para que el perfil los muestre
   useEffect(() => {
-    try {
-      const storedInscritos = JSON.parse(localStorage.getItem('mc_cursosInscritos')) || [];
-      const storedProgreso = JSON.parse(localStorage.getItem('mc_progresoCursos')) || {};
-      const storedCatalog = JSON.parse(localStorage.getItem('mc_cursosCatalog')) || null;
-
-      if (storedInscritos.length) setCursosInscritos(storedInscritos);
-      if (Object.keys(storedProgreso).length) setProgresoCursos(storedProgreso);
-      if (!storedCatalog) localStorage.setItem('mc_cursosCatalog', JSON.stringify(cursos));
-    } catch (err) {
-      // ignore JSON parse errors
-      localStorage.removeItem('mc_cursosInscritos');
-      localStorage.removeItem('mc_progresoCursos');
+    if (!localStorage.getItem('mc_cursosCatalog')) {
+      localStorage.setItem('mc_cursosCatalog', JSON.stringify(cursos));
     }
   }, []);
 
@@ -220,11 +223,10 @@ export default function MarketplaceCursos() {
     try {
       localStorage.setItem('mc_cursosInscritos', JSON.stringify(cursosInscritos));
       localStorage.setItem('mc_progresoCursos', JSON.stringify(progresoCursos));
-      // Dispatch event so Profile (same tab) can update immediately
       window.dispatchEvent(
         new CustomEvent('mc:coursesUpdated', { detail: { cursosInscritos, progresoCursos } }),
       );
-    } catch (err) {
+    } catch {
       // ignore
     }
   }, [cursosInscritos, progresoCursos]);

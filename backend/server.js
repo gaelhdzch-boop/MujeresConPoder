@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
+import conectarDB from './db.js';
 
 dotenv.config();
 
@@ -35,8 +36,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Error interno del servidor' });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`✓ Backend ejecutándose en http://localhost:${PORT}`);
-  console.log(`✓ API disponible en http://localhost:${PORT}/api`);
-});
+const startServer = async () => {
+  await conectarDB();
+  app.listen(PORT, () => {
+    console.log(`✓ Backend ejecutándose en http://localhost:${PORT}`);
+    console.log(`✓ API disponible en http://localhost:${PORT}/api`);
+  });
+};
+
+startServer();

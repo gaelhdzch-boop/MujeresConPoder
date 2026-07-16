@@ -1,131 +1,213 @@
-# Plataforma para Mujeres Emprendedoras
+# Documentación de la plataforma
 
-## Resumen del proyecto
-Esta plataforma incluye:
-- Backend en Node.js + Express para autenticación, recuperación de contraseña y administración de usuarios.
-- Frontend en React + Vite para registro, inicio de sesión, perfil, marketplace, cursos, finanzas, comunidad y oportunidades.
-- Base de datos MySQL con tablas de usuarios, cursos, tokens de recuperación y sesiones.
+## 1. Qué es este sitio y cómo funciona
 
-## Actualizaciones recientes
-- Se consolidó la aplicación en la carpeta frontend con una estructura más organizada.
-- Se añadieron nuevas vistas para marketplace, cursos, finanzas, comunidad y oportunidades.
-- Se mejoró el flujo de autenticación, registro y perfil de usuario.
-- Se incorporaron estilos nuevos para formularios, perfil, marketplace y secciones de finanzas.
-- Se creó un archivo de seguimiento de cambios en [ACTUALIZACIONES.md](ACTUALIZACIONES.md).
+Esta plataforma está pensada para mujeres emprendedoras y ofrece una experiencia de acceso a contenido, autenticación de usuarios, perfil personal, marketplace, cursos, finanzas, comunidad y oportunidades.
 
-## Estructura principal
+### Funcionalidades principales
 
-```
+- Registro e inicio de sesión de usuarios.
+- Recuperación de contraseña mediante pregunta de seguridad.
+- Gestión de perfil con foto, datos básicos y cambio de contraseña.
+- Catálogo de cursos con seguimiento de progreso.
+- Marketplace para publicar y visualizar productos o servicios.
+- Secciones de finanzas, comunidad y oportunidades.
+- Panel de administración para gestionar usuarios y roles.
+
+### Flujo general del sitio
+
+1. El usuario entra al frontend en React + Vite.
+2. El frontend decide si mostrar la vista pública o la vista autenticada.
+3. Cuando el usuario inicia sesión, el backend genera un token JWT y lo devuelve al cliente.
+4. El token se guarda en localStorage y se usa para acceder a rutas protegidas.
+5. El backend valida el token y permite consultar o actualizar datos del usuario, cursos y marketplace.
+
+---
+
+## 2. Arquitectura del proyecto
+
+El proyecto está dividido en dos partes principales:
+
+- Frontend: React + Vite
+- Backend: Node.js + Express
+- Base de datos: MySQL
+
+### Estructura principal
+
+```text
 plataforma/
-├── backend/            # API y lógica del servidor
-├── frontend/           # Frontend React + Vite
-└── GUIA_CONFIGURACION.md
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── database/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── .env
+│   ├── .env.example
+│   ├── db.js
+│   ├── index.js
+│   ├── package.json
+│   ├── server.js
+│   └── README.md
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── constants/
+│   │   ├── data/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   └── eslint.config.js
+└── README.md
 ```
 
-## Backend
+---
 
-### Tecnologías
-- Node.js
-- Express
-- MySQL (`mysql2`)
-- JWT (`jsonwebtoken`)
-- bcrypt (`bcryptjs`)
-- Dotenv para variables de entorno
-- CORS habilitado
+## 3. Cómo está configurado
 
-### Archivos clave
-- `backend/server.js` - servidor Express y configuración global
-- `backend/routes/authRoutes.js` - rutas de autenticación y perfil
-- `backend/controllers/authController.js` - controladores de registro, login, recuperación y administración
-- `backend/models/userModel.js` - consultas SQL y acceso a datos
-- `backend/middleware/auth.js` - validación de JWT y verificación de administrador
-- `backend/database/schema.sql` - esquema de base de datos
+### Backend
 
-### Funcionalidad implementada
-- Registro de usuario con validación y hash de contraseña, incluyendo pregunta y respuesta de seguridad
-- Inicio de sesión con JWT
-- Validaciones de correo y contraseña en backend
-- Recuperación de contraseña mediante respuesta a pregunta de seguridad
-- Gestión de cursos inscritos y progreso de usuarias
-- Consulta y actualización de perfil autenticado
-- Cambio de contraseña autenticado
-- Rutas administradoras protegidas por rol `admin`
+El backend se ejecuta con Express y expone una API bajo la ruta /api.
 
-### Endpoints principales
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `GET /api/auth/profile`
-- `PUT /api/auth/profile`
-- `PUT /api/auth/change-password`
-- `GET /api/auth/courses`
-- `POST /api/auth/courses/register`
-- `PUT /api/auth/courses/progress`
-- `GET /api/auth/users` (admin)
-- `PUT /api/auth/users/role` (admin)
+#### Archivo principal
 
-## Frontend
+- backend/server.js: inicia el servidor, habilita CORS, parsea JSON y monta las rutas de autenticación.
 
-### Tecnologías
-- React
-- Vite
-- CSS modular en `src/styles`
+#### Rutas principales
 
-### Archivos clave
-- `frontend/src/App.jsx` - navegación entre home, auth, profile y sesión cerrada
-- `frontend/src/services/api.js` - llamadas a la API y manejo de tokens
-- `frontend/src/components/AuthPage.jsx` - página principal de autenticación
-- `frontend/src/components/Login.jsx` - formulario de inicio de sesión
-- `frontend/src/components/SignUp.jsx` - formulario de registro
-- `frontend/src/components/ForgotPassword.jsx` - solicitud de restablecimiento
-- `frontend/src/components/ResetPassword.jsx` - formulario de nueva contraseña
-- `frontend/src/components/Profile.jsx` - vista de perfil del usuario
-- `frontend/src/components/Navbar.jsx` - navegación del sitio
-- `frontend/src/components/SessionClosed.jsx` - pantalla de cierre de sesión
-- `frontend/src/components/HeroSection.jsx`, `FeaturesGrid.jsx`, `OpportunitiesBanner.jsx` - contenido de la página de inicio
-- `frontend/src/components/Marketplace.jsx` - interfaz tipo e-commerce para el marketplace
-- `frontend/src/components/Cursos.jsx` - interfaz de catálogo de cursos
-- `frontend/src/components/OpportunitiesBanner.jsx` - sección de oportunidades
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/forgot-password
+- POST /api/auth/reset-password
+- GET /api/auth/profile
+- PUT /api/auth/profile
+- PUT /api/auth/change-password
+- GET /api/auth/courses
+- POST /api/auth/courses/register
+- PUT /api/auth/courses/progress
+- GET /api/auth/marketplace
+- POST /api/auth/marketplace
+- PUT /api/auth/marketplace/:id/stock
+- DELETE /api/auth/marketplace/:id
+- GET /api/auth/users (solo admin)
+- PUT /api/auth/users/role (solo admin)
 
-### Funcionalidad implementada
-- Registro y login con persistencia de token en `localStorage`
-- Acceso a vista de perfil cuando el usuario está autenticado
-- Navegación condicional entre home, auth, profile, marketplace, cursos y comunidad
-- Página de cursos con búsqueda, filtrado, inscripción, avance y reinicio
-- Persistencia del progreso de cursos de la usuaria y visualización en perfil
-- Flujo de recuperación de contraseña mediante pregunta de seguridad
-- Manejo de sesión cerrada
-- Integración con API backend usando `fetch`
-- Interfaces de Marketplace y Cursos separadas del home
-- Estilos renovados en los formularios de búsqueda para fondo blanco y texto negro
+#### Autenticación
 
-## Configuración recomendada
-1. Configurar MySQL y crear la base de datos usando `backend/database/schema.sql`
-2. Copiar y editar el archivo de entorno en `backend/` con variables como `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` y `JWT_SECRET`
-3. Instalar dependencias del backend:
-   ```bash
-   cd backend
-   npm install
-   ```
-4. Iniciar backend:
-   ```bash
-   npm run dev
-   ```
-5. Instalar dependencias del frontend:
-   ```bash
-   cd frontend
-   npm install
-   ```
-6. Iniciar frontend:
-   ```bash
-   npm run dev
-   ```
+- Se usa JWT para proteger rutas.
+- El middleware de autenticación valida el token enviado en el header Authorization.
+- Existe un middleware adicional para restringir acceso a usuarios administradores.
 
-## Notas finales
-- El backend protege rutas con JWT y distingue administración por rol.
-- El backend incluye endpoints para registrar cursos, actualizar progreso y consultar cursos inscritos.
-- La recuperación de contraseña se realiza respondiendo a la pregunta de seguridad registrada por la usuaria.
-- La plataforma ya cuenta con los componentes principales para autenticación, cursos y perfil de usuaria.
+### Frontend
 
-> Para detalles de instalación y configuración paso a paso, consulta `GUIA_CONFIGURACION.md`.
+El frontend está montado con React y Vite.
+
+#### Archivo principal
+
+- frontend/src/App.jsx: controla la navegación entre home, autenticación, perfil, cursos, marketplace, comunidad, finanzas y oportunidades.
+
+#### Componente clave
+
+- Navbar: navegación principal.
+- AuthPage: vista de registro/inicio de sesión/recuperación de contraseña.
+- Profile: perfil autenticado.
+- Marketplace: listado y publicación de productos.
+- Cursos: catálogo de cursos y progreso.
+- Finanzas, Comunidad y Oportunidades: secciones de contenido.
+
+---
+
+## 4. Base de datos
+
+La base de datos se configura con MySQL y el esquema se encuentra en backend/database/schema.sql.
+
+### Tablas principales
+
+- usuarios: información de usuarios, contraseña cifrada, pregunta de seguridad, rol y estado.
+- tokens_recuperacion: almacenamiento temporal de tokens para recuperación de contraseña.
+- sesiones: registro de sesiones JWT (opcional para auditoría).
+- cursos_usuario: progreso de los cursos inscritos por usuario.
+- marketplace_productos: productos publicados en el marketplace.
+
+### Variables de entorno
+
+El backend usa un archivo .env con las siguientes variables esenciales:
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_NAME=plataforma_db
+JWT_SECRET=tu_secreto
+PORT=5000
+```
+
+---
+
+## 5. Cómo ejecutar el proyecto
+
+### 1. Preparar la base de datos
+
+1. Crear una base de datos MySQL llamada plataforma_db.
+2. Ejecutar el contenido de backend/database/schema.sql.
+
+### 2. Configurar variables de entorno
+
+Crear el archivo backend/.env con los valores correspondientes.
+
+### 3. Instalar dependencias del backend
+
+```bash
+cd backend
+npm install
+```
+
+### 4. Iniciar el backend
+
+```bash
+npm run dev
+```
+
+### 5. Instalar dependencias del frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+### 6. Iniciar el frontend
+
+```bash
+npm run dev
+```
+
+El backend normalmente se ejecuta en http://localhost:5000 y el frontend en http://localhost:5173.
+
+---
+
+## 6. Notas de seguridad y funcionamiento
+
+- Las contraseñas se almacenan cifradas con bcrypt.
+- Las respuestas de seguridad también se guardan de forma cifrada.
+- Los tokens JWT se usan para autenticar solicitudes sensibles.
+- El frontend guarda el token en localStorage para mantener la sesión.
+- Las rutas administrativas requieren rol admin.
+
+---
+
+## 7. Puntos esenciales para mantener
+
+- Mantener actualizado el archivo .env con credenciales correctas.
+- Asegurar que la base de datos MySQL esté activa antes de iniciar el backend.
+- Si se modifican rutas o estructura de la API, actualizar la lógica del frontend en frontend/src/services/api.js.
+- Si se agregan nuevas secciones, se recomienda integrarlas en App.jsx y en el frontend para mantener la navegación consistente.

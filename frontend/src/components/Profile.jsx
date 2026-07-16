@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { COLORS } from '../constants/colors';
 import { authService } from '../services/api';
 import '../styles/Profile.css';
 import Finanzas from './Finanzas';
@@ -66,8 +65,8 @@ export const Profile = ({ onLogout }) => {
         setAvatarPreview(
           loadedUser.fotoPerfil || loadedUser.foto_perfil || ''
         );
-      } catch (err) {
-        setError(err.message || 'No se pudo cargar el perfil');
+      } catch {
+        setError('No se pudo cargar el perfil');
       } finally {
         setLoading(false);
       }
@@ -83,7 +82,7 @@ export const Profile = ({ onLogout }) => {
         const prog = JSON.parse(localStorage.getItem('mc_progresoCursos')) || {};
         setInscritosPerfil(stored);
         setProgresoPerfil(prog);
-      } catch (e) {
+      } catch {
         // ignore
       }
     };
@@ -105,7 +104,7 @@ export const Profile = ({ onLogout }) => {
           setInscritosPerfil(ids);
           setProgresoPerfil(progresoMap);
         }
-      } catch (err) {
+      } catch {
         // si hay error de API, mantenemos el cache local
       }
     };
@@ -244,8 +243,8 @@ export const Profile = ({ onLogout }) => {
       await authService.changePassword(currentPassword, newPassword, confirmPassword);
       setPasswordMessage('Contraseña actualizada correctamente.');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (err) {
-      setPasswordError(err.message || 'Error al cambiar la contraseña.');
+    } catch {
+      setPasswordError('Error al cambiar la contraseña.');
     } finally {
       setPasswordSaving(false);
     }
