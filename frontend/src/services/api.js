@@ -1,6 +1,10 @@
-const API_URL = (
-  (import.meta.env?.VITE_API_URL || (import.meta.env?.PROD ? '/api' : 'http://localhost:5000/api')) || 'http://localhost:5000/api'
-).replace(/\/$/, '');
+const rawApiUrl = (
+  import.meta.env?.VITE_API_URL || (import.meta.env?.PROD ? '/api' : 'http://localhost:5000/api')
+)?.replace(/\/$/, '');
+
+const API_URL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`)
+  : 'http://localhost:5000/api';
 
 export const apiCall = async (endpoint, method = 'GET', body = null) => {
   const options = {
@@ -62,8 +66,10 @@ export const authService = {
   updateProfile: (nombre, fotoPerfil, preguntaSeguridad, respuestaSeguridad) => {
     const body = { nombre };
     if (fotoPerfil !== undefined) body.fotoPerfil = fotoPerfil;
-    if (preguntaSeguridad !== undefined) body.preguntaSeguridad = preguntaSeguridad;
-    if (respuestaSeguridad !== undefined) body.respuestaSeguridad = respuestaSeguridad;
+    if (preguntaSeguridad && respuestaSeguridad) {
+      body.preguntaSeguridad = preguntaSeguridad;
+      body.respuestaSeguridad = respuestaSeguridad;
+    }
     return apiCall('/auth/profile', 'PUT', body);
   },
 
