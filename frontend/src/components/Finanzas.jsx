@@ -3,7 +3,7 @@ import '../styles/Finanzas.css';
 
 const movimientosIniciales = [];
 
-const metas = [
+const metasIniciales = [
   {
     nombre: 'Comprar inventario',
     actual: 0,
@@ -42,6 +42,7 @@ export default function Finanzas() {
   const [costo, setCosto] = useState(0);
   const [margen, setMargen] = useState(0);
   const [mensaje, setMensaje] = useState('');
+  const [metas, setMetas] = useState(metasIniciales);
 
   const resumen = useMemo(() => {
     const ingresos = movimientos
@@ -65,6 +66,14 @@ export default function Finanzas() {
 
     return costoNumero + costoNumero * (margenNumero / 100);
   }, [costo, margen]);
+
+  const actualizarMeta = (index, campo, valor) => {
+    setMetas((actuales) =>
+      actuales.map((meta, i) =>
+        i === index ? { ...meta, [campo]: Number(valor) || 0 } : meta
+      )
+    );
+  };
 
   const actualizarCampo = (evento) => {
     const { name, value } = evento.target;
@@ -139,7 +148,9 @@ export default function Finanzas() {
           <article className="finanzas-panel">
             <div className="finanzas-panel-title">
               <span>Movimientos recientes</span>
-              <strong>{movimientos.length} registros</strong>
+              <strong>
+                {movimientos.length} {movimientos.length === 1 ? 'registro' : 'registros'}
+              </strong>
             </div>
 
             <div className="finanzas-table" role="table" aria-label="Movimientos financieros">
@@ -244,7 +255,7 @@ export default function Finanzas() {
       </div>
 
       <div className="finanzas-goals" aria-label="Metas financieras">
-        {metas.map((meta) => {
+        {metas.map((meta, index) => {
           const avance = meta.objetivo
             ? Math.min(Math.round((meta.actual / meta.objetivo) * 100), 100)
             : 0;
@@ -258,6 +269,34 @@ export default function Finanzas() {
               <div className="finanzas-goal-bar">
                 <span style={{ width: `${avance}%` }} />
               </div>
+              <div className="finanzas-goal-inputs">
+                <label>
+                  Meta
+                  <input
+                    min="0"
+                    name="objetivo"
+                    type="number"
+                    value={meta.objetivo}
+                    onChange={(e) => actualizarMeta(index, 'objetivo', e.target.value)}
+                  />
+                </label>
+                <label>
+                  Ahorrado
+                  <input
+                    min="0"
+                    name="actual"
+                    type="number"
+                    value={meta.actual}
+                    onChange={(e) => actualizarMeta(index, 'actual', e.target.value)}
+                  />
+                </label>
+              </div>
+              <p>
+                {meta.actual > 0
+                  ? `Has alcanzado ${avance}% de esta meta.`
+                  : 'Agrega el objetivo y lo que ya llevas ahorrado para ver el avance.'}
+              </p>
+            </article>
               <p>
                 {formatoMoneda.format(meta.actual)} de {formatoMoneda.format(meta.objetivo)}
               </p>

@@ -348,6 +348,34 @@
   margin: 12px 0 0;
 }
 
+.finanzas-goal-inputs {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.finanzas-goal-inputs label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.finanzas-goal-inputs input {
+  background: #ffffff;
+  border: 2px solid var(--fin-border);
+  border-radius: 14px;
+  color: var(--fin-ink);
+  font: inherit;
+  outline: none;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.finanzas-goal-inputs input:focus {
+  border-color: var(--fin-pink);
+  box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.18);
+}
+
 .finanzas-goal-rosa {
   background: #fbcfe8;
 }
