@@ -769,7 +769,7 @@ export default function MarketplaceCursos() {
                   <span>{productoSeleccionado.etiqueta}</span>
                   <strong>{productoSeleccionado.precio}</strong>
                   <a
-                    href={`mailto:contacto@mujeresconpoder.mx?subject=Me interesa ${encodeURIComponent(
+                    href={`mailto:contacto@omniakin.com?subject=Me interesa ${encodeURIComponent(
                       productoSeleccionado.nombre,
                     )}`}
                   >
