@@ -63,7 +63,21 @@ function App() {
   if (currentPage === 'auth') {
     return (
       <div>
-        <Navbar onLogoClick={handleLogoClick} />
+        <Navbar 
+          onLogoClick={handleLogoClick}
+          onCreateAccountClick={navigateToSignup}
+          onLoginClick={navigateToLogin}
+          onProfileClick={navigateToProfile}
+          isAuthenticated={isAuthenticated}
+          onNavigate={(page) => {
+            if (page === 'cursos') navigateToCursos();
+            else if (page === 'marketplace') navigateToMarketplace();
+            else if (page === 'comunidad') navigateToComunidad();
+            else if (page === 'finanzas') navigateToFinanzas();
+            else if (page === 'oportunidades') navigateToOportunidades();
+          }}
+          onLogout={handleLogout}
+        />
         <AuthPage
           key={`${authView}-${resetToken || ''}`}
           initialView={authView}
@@ -82,7 +96,21 @@ function App() {
   if (currentPage === 'profile') {
     return (
       <div>
-        <Navbar onLogoClick={handleLogoClick} />
+        <Navbar 
+          onLogoClick={handleLogoClick}
+          onCreateAccountClick={navigateToSignup}
+          onLoginClick={navigateToLogin}
+          onProfileClick={navigateToProfile}
+          isAuthenticated={isAuthenticated}
+          onNavigate={(page) => {
+            if (page === 'cursos') navigateToCursos();
+            else if (page === 'marketplace') navigateToMarketplace();
+            else if (page === 'comunidad') navigateToComunidad();
+            else if (page === 'finanzas') navigateToFinanzas();
+            else if (page === 'oportunidades') navigateToOportunidades();
+          }}
+          onLogout={handleLogout}
+        />
         <Profile onLogout={handleLogout} />
       </div>
     );
@@ -91,7 +119,21 @@ function App() {
   if (currentPage === 'closed') {
     return (
       <div>
-        <Navbar onLogoClick={handleLogoClick} />
+        <Navbar 
+          onLogoClick={handleLogoClick}
+          onCreateAccountClick={navigateToSignup}
+          onLoginClick={navigateToLogin}
+          onProfileClick={navigateToProfile}
+          isAuthenticated={isAuthenticated}
+          onNavigate={(page) => {
+            if (page === 'cursos') navigateToCursos();
+            else if (page === 'marketplace') navigateToMarketplace();
+            else if (page === 'comunidad') navigateToComunidad();
+            else if (page === 'finanzas') navigateToFinanzas();
+            else if (page === 'oportunidades') navigateToOportunidades();
+          }}
+          onLogout={handleLogout}
+        />
         <SessionClosed onReturnHome={navigateHome} />
       </div>
     );
@@ -99,7 +141,21 @@ function App() {
 
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
-      <Navbar onLogoClick={handleLogoClick} />
+      <Navbar 
+        onLogoClick={handleLogoClick}
+        onCreateAccountClick={navigateToSignup}
+        onLoginClick={navigateToLogin}
+        onProfileClick={navigateToProfile}
+        isAuthenticated={isAuthenticated}
+        onNavigate={(page) => {
+          if (page === 'cursos') navigateToCursos();
+          else if (page === 'marketplace') navigateToMarketplace();
+          else if (page === 'comunidad') navigateToComunidad();
+          else if (page === 'finanzas') navigateToFinanzas();
+          else if (page === 'oportunidades') navigateToOportunidades();
+        }}
+        onLogout={handleLogout}
+      />
 
       <main>
         {currentPage === 'home' && (
