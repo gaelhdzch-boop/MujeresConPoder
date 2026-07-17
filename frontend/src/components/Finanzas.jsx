@@ -296,7 +296,6 @@ export default function Finanzas() {
                   ? `Has alcanzado ${avance}% de esta meta.`
                   : 'Agrega el objetivo y lo que ya llevas ahorrado para ver el avance.'}
               </p>
-            </article>
               <p>
                 {formatoMoneda.format(meta.actual)} de {formatoMoneda.format(meta.objetivo)}
               </p>

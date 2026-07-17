@@ -62,38 +62,27 @@ function App() {
 
   if (currentPage === 'auth') {
     return (
-      <AuthPage
-        key={`${authView}-${resetToken || ''}`}
-        initialView={authView}
-        resetToken={resetToken}
-        onLoginSuccess={handleLoginSuccess}
-        onResetSuccess={() => {
-          setAuthView('login');
-          window.history.replaceState({}, '', window.location.pathname);
-        }}
-        onCancel={navigateHome}
-      />
+      <div>
+        <Navbar onLogoClick={handleLogoClick} />
+        <AuthPage
+          key={`${authView}-${resetToken || ''}`}
+          initialView={authView}
+          resetToken={resetToken}
+          onLoginSuccess={handleLoginSuccess}
+          onResetSuccess={() => {
+            setAuthView('login');
+            window.history.replaceState({}, '', window.location.pathname);
+          }}
+          onCancel={navigateHome}
+        />
+      </div>
     );
   }
 
   if (currentPage === 'profile') {
     return (
       <div>
-        <Navbar
-          onCreateAccountClick={navigateToSignup}
-          onLoginClick={navigateToLogin}
-          onLogoClick={handleLogoClick}
-          onProfileClick={navigateToProfile}
-          isAuthenticated={isAuthenticated}
-          onNavigate={(p) => {
-            if (p === 'cursos') navigateToCursos();
-            if (p === 'marketplace') navigateToMarketplace();
-            if (p === 'comunidad') navigateToComunidad();
-            if (p === 'finanzas') navigateToFinanzas();
-            if (p === 'oportunidades') navigateToOportunidades();
-          }}
-          onLogout={handleLogout}
-        />
+        <Navbar onLogoClick={handleLogoClick} />
         <Profile onLogout={handleLogout} />
       </div>
     );
@@ -102,7 +91,7 @@ function App() {
   if (currentPage === 'closed') {
     return (
       <div>
-        {/* Navbar no se muestra al cerrar sesión */}
+        <Navbar onLogoClick={handleLogoClick} />
         <SessionClosed onReturnHome={navigateHome} />
       </div>
     );
@@ -110,28 +99,12 @@ function App() {
 
   return (
     <div style={{ fontFamily: 'sans-serif' }}>
-      {isAuthenticated && (
-        <Navbar
-          onCreateAccountClick={navigateToSignup}
-          onLoginClick={navigateToLogin}
-          onLogoClick={handleLogoClick}
-          onProfileClick={navigateToProfile}
-          isAuthenticated={isAuthenticated}
-          onNavigate={(p) => {
-            if (p === 'cursos') navigateToCursos();
-            if (p === 'marketplace') navigateToMarketplace();
-            if (p === 'comunidad') navigateToComunidad();
-            if (p === 'finanzas') navigateToFinanzas();
-            if (p === 'oportunidades') navigateToOportunidades();
-          }}
-          onLogout={handleLogout}
-        />
-      )}
+      <Navbar onLogoClick={handleLogoClick} />
 
       <main>
         {currentPage === 'home' && (
           <>
-            <HeroSection onCreateAccountClick={navigateToSignup} />
+            <HeroSection onCreateAccountClick={navigateToSignup} onLoginClick={navigateToLogin} />
             <FeaturesGrid />
           </>
         )}

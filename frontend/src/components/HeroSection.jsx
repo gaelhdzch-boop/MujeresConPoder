@@ -1,6 +1,6 @@
 import { COLORS } from '../constants/colors';
 
-export const HeroSection = ({ onCreateAccountClick }) => {
+export const HeroSection = ({ onCreateAccountClick, onLoginClick }) => {
   return (
     <section id="inicio" className="hero-section text-center p-5 position-relative" style={{ backgroundColor: COLORS.lightBg }}>
       <div className="container py-5">
@@ -22,16 +22,16 @@ export const HeroSection = ({ onCreateAccountClick }) => {
           <button 
             className="btn btn-lg rounded-pill px-4 text-white"
             style={{ backgroundColor: COLORS.primary, border: 'none' }}
-            onClick={onCreateAccountClick}
+            onClick={onLoginClick}
           >
-            Comenzar
+            Iniciar sesión
           </button>
           <button 
             className="btn btn-light btn-lg rounded-pill px-4"
             style={{ color: COLORS.primary }}
-            onClick={() => console.log('Conoce más clicked')}
+            onClick={onCreateAccountClick}
           >
-            Conoce más
+            Registrarse
           </button>
         </div>
       </div>
